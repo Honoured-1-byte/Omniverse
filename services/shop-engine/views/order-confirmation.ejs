@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+
+<h2>Review Your Cart</h2>
+<ul>
+  <% if (cart && cart.items.length) { %>
+    <% cart.items.forEach(item => { %>
+      <li>
+        <%= item.title %> × <%= item.qty %> — $<%= item.price * item.qty %>
+      </li>
+    <% }) %>
+  <% } else { %>
+    <li>Your cart is empty.</li>
+  <% } %>
+</ul>
+<p><strong>Total: $<%= cart.totalPrice %></strong></p>
+
+<!-- Simple checkout button, no credit card required -->
+<form method="POST" action="/checkout">
+  <button type="submit" class="btn btn-primary">Place Order</button>
+</form>
+
+<%- include('partials/footer') %>

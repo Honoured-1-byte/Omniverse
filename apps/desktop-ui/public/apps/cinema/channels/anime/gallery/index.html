@@ -1,0 +1,159 @@
+<!-- index.html - Main HTML file -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeVerse Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <a href="../index.html"
+        style="position: fixed; top: 100px; left: 20px; z-index: 9999; background: #ff0055; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.5);">⬅
+        Network Home</a>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo">Anime<span>Verse</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="news.html">News</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Banner Section -->
+    <section class="hero">
+        <div class="hero-slider">
+            <div class="slide">
+                <img src="images/AOT.jpg" alt="ATTACK ON TITAN">
+
+                <!-- Banner overlay with triangle + text -->
+                <div class="banner-overlay">
+                    <div class="triangle-overlay"></div>
+                    <div class="triangle-text">
+                        <h2>Attack on Titan Season-4</h2>
+                        <p>The final battle begins as truths are unveiled and alliances are tested.</p>
+                        <p>Eren's path to freedom sparks a global conflict that blurs the line between hero and villain.
+                        </p>
+                        <a href="#">Watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <img src="images/DS.png" alt="DEMON SLAYER">
+
+                <!-- Banner overlay with triangle + text -->
+                <div class="banner-overlay">
+                    <div class="triangle-overlay"></div>
+                    <div class="triangle-text">
+                        <h2>Demon Slayer Infinity Castle Arc: Part 1</h2>
+                        <p>The Hashira storm Muzan's lair in a visually stunning showdown.</p>
+                        <p>Chaos erupts in the labyrinthine Infinity Castle as the Demon Slayer Corps faces their
+                            deadliest battle yet.</p>
+                        <a href="#">Add to Watchlist</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <img src="images/JJK.jpg" alt="JUJUTSU KAISEN">
+
+                <!-- Banner overlay with triangle + text -->
+                <div class="banner-overlay">
+                    <div class="triangle-overlay"></div>
+                    <div class="triangle-text">
+                        <h2>Jujutsu Kaisen</h2>
+                        <h2> Shinjuku Showdown</h2>
+                        <p>The Culling Game reaches its climax as Sukuna and Gojo collide in a city-shattering clash.
+                        </p>
+                        <p>Power, sacrifice, and fate intertwine in this high-stakes arc of sorcery.</p>
+                        <a href="#">Add to Watchlist</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="slider-nav">
+            <button class="prev">&#10094;</button>
+            <button class="next">&#10095;</button>
+        </div>
+    </section>
+
+    <!-- Latest Releases Section -->
+    <section class="latest-releases">
+        <h2>Latest Releases</h2>
+        <div class="releases-carousel">
+            <div class="release-card">
+                <img src="images/AOT.jpg" alt="Release 1">
+                <h3>Attack on Titan Season-4</h3>
+                <p>Release Date: 2024-12-7</p>
+            </div>
+            <div class="release-card">
+                <img src="images/DS.png" alt="Release 2">
+                <h3>Demon Slayer Infinity Castel Arc: Part 1</h3>
+                <p>Release Date: 2025-09-12</p>
+            </div>
+            <div class="release-card">
+                <img src="images/JJK.jpg" alt="Release 3">
+                <h3>Jujutsu Kaisen Shinjuku Showdown</h3>
+                <p>Comming Soon</p>
+            </div>
+            <div class="release-card">
+                <img src="images/release4.jpg" alt="Release 4">
+                <h3>Anime Title 4</h3>
+                <p>Release Date: 2024-04-05</p>
+            </div>
+            <div class="release-card">
+                <img src="images/release5.jpg" alt="Release 5">
+                <h3>Anime Title 5</h3>
+                <p>Release Date: 2024-05-01</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about">
+        <h2>About This Site</h2>
+        <p>Welcome to AnimeVerse, your ultimate destination for all things anime! Our mission is to provide the latest
+            news, reviews, and information about your favorite anime shows and movies. We strive to create a vibrant
+            community for anime fans to connect and share their passion.</p>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="social-icons">
+            <a href="#"><img src="images/fb.png" alt="Facebook"></a>
+            <a href="#"><img src="images/x.png" alt="X"></a>
+            <a href="#"><img src="images/insta.jpg" alt="Instagram"></a>
+        </div>
+        <div class="newsletter">
+            <input type="email" placeholder="Enter your email">
+            <button>Subscribe</button>
+        </div>
+        <p>&copy; 2025 AnimeVerse. All rights reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+
+</html>

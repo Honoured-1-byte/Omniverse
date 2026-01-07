@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<%- include('../partials/categories-navbar') %>
+
+<div class="container mt-5">
+  <h2>Checkout</h2>
+  <form action="/checkout" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-group">
+      <label for="address">Shipping Address</label>
+      <textarea
+        name="address"
+        id="address"
+        class="form-control"
+        rows="3"
+        required
+      ></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+      Place Order (Cash on Delivery)
+    </button>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>
