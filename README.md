@@ -45,7 +45,7 @@ OmniVerse is structurally organized to simulate an OS environment:
 - `apps/desktop-ui/`: The main React client application (The OS).
 - `docs/`: Technical specifications and documentation.
 - `scripts/`: Useful development and maintenance scripts.
-- `packages/` & `services/`: Workspaces reserved for decoupled backend services (e.g., AI integration, e-commerce engines).
+- `packages/` & `services/`: Workspaces reserved for decoupled backend services (e.g., AI integration).
 
 ---
 
