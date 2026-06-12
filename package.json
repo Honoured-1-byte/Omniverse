@@ -1,14 +1,12 @@
 {
   "private": true,
   "workspaces": [
-    "apps/*",
+    "desktop-ui",
     "packages/*",
-    "services/*"
+    "ai-engine"
   ],
   "scripts": {
-    "dev:desktop": "npm run dev --workspace=apps/desktop-ui",
-    "ingest": "node scripts/ingest_knowledge.js",
-    "omni": "node scripts/omni.js",
+    "dev:desktop": "npm run dev --workspace=desktop-ui",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "name": "omniverse",

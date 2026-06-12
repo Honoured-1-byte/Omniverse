@@ -14,11 +14,11 @@ timeout /t 2 /nobreak >nul
 
 :: 2. AI ENGINE (Gemini) - Port 3004
 echo [2/3] Igniting AI Engine (OmniBrain)...
-start "AI Service" cmd /k "cd services\ai-engine && npm install && npm start"
+start "AI Service" cmd /k "cd ai-engine && npm install && npm start"
 
 :: 3. DESKTOP UI (Vite) - Port 5173
 echo [3/3] Launching Desktop Interface...
-cd apps\desktop-ui
+cd desktop-ui
 echo.
 echo SYSTEM ONLINE. OPENING INTERFACE...
 echo.

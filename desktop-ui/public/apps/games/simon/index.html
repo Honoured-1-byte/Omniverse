@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon Says</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <main class="game-layout">
+        <!-- Left Side: Info & Score -->
+        <div class="left-panel">
+            <h1>Simon Says</h1>
+            <h2 id="current-level">Press any key to start</h2>
+            
+            <div class="score-board">
+                <h3 id="current-score">Current Score: 0</h3>
+                <h3 id="high-score">High Score: 0</h3>
+            </div>
+
+            <div class="instructions">
+                <p class="title">Controls</p>
+                <div class="key-grid">
+                    <span>W / ↑ / 8</span> <span>(Top)</span>
+                    <span>A / ← / 4</span> <span>(Left)</span>
+                    <span>S / ↓ / 2</span> <span>(Bottom)</span>
+                    <span>D / → / 6</span> <span>(Right)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Game Board (+) -->
+        <div class="right-panel">
+            <div class="base-ring"></div>
+            <div class="plus-layout">
+                <div class="btn top-btn red" type="button" id="red"></div>
+                <div class="middle-row">
+                    <div class="btn left-btn blue" type="button" id="blue"></div>
+                    <div class="center-spacer"></div>
+                    <div class="btn right-btn yellow" type="button" id="yellow"></div>
+                </div>
+                <div class="btn bottom-btn purple" type="button" id="purple"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber Chess: Grandmaster AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-cyan: #00ffff;
+            --border-color: rgba(0, 255, 255, 0.2);
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+            --color-green: #22c55e;
+            --color-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color); 
+            background-image: radial-gradient(rgba(0, 255, 255, 0.05) 2px, transparent 2px);
+            background-size: 30px 30px;
+            color: #e2e8f0;
+            font-family: var(--font-main);
+            overflow-y: auto;
+            overflow-x: hidden;
+            touch-action: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        /* Layout */
+        .game-layout {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            min-height: 100%;
+            align-items: center;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            flex: 1;
+            min-width: 280px;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            border-right: 1px solid var(--border-color);
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.6));
+            height: 100%;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        #status {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #fff;
+            min-height: 2rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        .hud-info {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+        }
+
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .hud-row span.green { color: var(--color-green); }
+        .hud-row span.red { color: var(--color-red); }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .cyber-btn {
+            flex: 1;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .cyber-btn:hover:not(:disabled) { 
+            background: rgba(0, 255, 255, 0.2); 
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        .cyber-btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: #475569; color: #475569; }
+
+        #terminal {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+            display: flex;
+            flex-direction: column-reverse; 
+            gap: 4px;
+        }
+
+        .log-entry { animation: fadeIn 0.3s ease-out; }
+        .log-entry.ai { color: var(--color-red); }
+        .log-entry.system { color: #94a3b8; font-style: italic; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Right Panel */
+        .right-panel {
+            flex: 2.5;
+            min-width: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 1.5rem;
+        }
+
+        .captured-zone {
+            width: 60px;
+            height: 400px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            padding: 10px;
+            gap: 5px;
+            font-size: 1.5rem;
+        }
+
+        .captured-green { color: var(--color-green); text-shadow: 0 0 10px var(--color-green); }
+        .captured-red { color: var(--color-red); text-shadow: 0 0 10px var(--color-red); }
+
+        @media (max-width: 900px) {
+            .right-panel {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 10px;
+            }
+            .captured-zone {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+                min-height: 50px;
+                flex-direction: row;
+                align-items: center;
+                align-content: center;
+                padding: 5px 10px;
+            }
+        }
+
+        #game-container {
+            position: relative;
+            background: var(--card-bg);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        canvas {
+            display: block;
+            cursor: pointer;
+            border-radius: 4px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            animation: scan 2s linear infinite;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+        }
+        .thinking .scan-line { display: block; }
+
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.3); border-radius: 4px; }
+
+    </style>
+</head>
+<body>
+
+    <main class="game-layout">
+        <!-- Left Side: Controls & Info -->
+        <div class="left-panel">
+            <h1 class="game-title">Cyber Chess</h1>
+            
+            <div id="status">INITIALIZING NEURAL NET...</div>
+
+            <div class="hud-info">
+                <div class="hud-row"><span>ENGINE:</span> <span>OMNI_VOID</span></div>
+                <div class="hud-row"><span>DEPTH:</span> <span>3-PLY</span></div>
+                <hr style="border-color: rgba(0,255,255,0.2); margin: 8px 0;">
+                <div class="hud-row"><span class="green">PLAYER</span> <span>vs</span> <span class="red">AI</span></div>
+            </div>
+
+            <div class="btn-group">
+                <button id="reset-btn" class="cyber-btn">New Game</button>
+                <button id="analyze-btn" class="cyber-btn" disabled>Analyze</button>
+            </div>
+
+            <div id="terminal">
+                <div class="log-entry system">> CONNECTED TO OMNIVERSE KERNEL</div>
+            </div>
+        </div>
+
+        <!-- Right Side: Board -->
+        <div class="right-panel">
+            <!-- Captured Green pieces -->
+            <div class="captured-zone captured-green" id="captured-green"></div>
+
+            <div id="game-container">
+                <canvas id="chessCanvas" width="400" height="400"></canvas>
+                <div class="scan-line"></div>
+            </div>
+
+            <!-- Captured Red pieces -->
+            <div class="captured-zone captured-red" id="captured-red"></div>
+        </div>
+    </main>
+
+<script>
+const canvas = document.getElementById('chessCanvas');
+const ctx = canvas.getContext('2d');
+const statusEl = document.getElementById('status');
+const terminal = document.getElementById('terminal');
+const gameContainer = document.getElementById('game-container');
+const resetBtn = document.getElementById('reset-btn');
+const analyzeBtn = document.getElementById('analyze-btn');
+const capGreenEl = document.getElementById('captured-green');
+const capRedEl = document.getElementById('captured-red');
+
+// --- CONFIG ---
+const apiKey = ""; 
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+// Using reliable unicode pieces
+const PIECES = {
+    'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟',
+    'K': '♚', 'Q': '♛', 'R': '♜', 'B': '♝', 'N': '♞', 'P': '♟'
+};
+
+const COLORS = {
+    green: '#22c55e', 
+    red: '#ef4444', 
+    boardDark: 'rgba(15, 23, 42, 0.8)', 
+    boardLight: 'rgba(51, 65, 85, 0.5)', 
+    highlight: 'rgba(0, 255, 255, 0.4)', 
+    validMove: 'rgba(0, 255, 255, 0.8)'
+};
+
+let board = []; 
+let turn = 'w';
+let selectedSquare = null;
+let validMoves = [];
+let gameHistory = [];
+let gameOver = false;
+let aiThinking = false;
+let SQUARE_SIZE = 50;
+
+// Engine vals
+const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+
+function init() {
+    SQUARE_SIZE = 400 / 8;
+    parseFEN(INITIAL_FEN);
+    drawBoard();
+    updateCaptured();
+    statusEl.innerText = "YOUR TURN";
+    statusEl.style.color = COLORS.green;
+    log("ENGINE READY. GOOD LUCK.", "system");
+}
+
+async function callGemini(prompt, type) {
+    if (!apiKey) return;
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if(text) {
+            if (type === 'taunt') log(text, 'ai');
+            if (type === 'analysis') {
+                log("--- BATTLE REPORT ---", 'system');
+                log(text, 'ai');
+            }
+        }
+    } catch (e) { console.error(e); }
+}
+
+function parseFEN(fen) {
+    board = Array(8).fill(null).map(() => Array(8).fill(null));
+    const [placement, activeColor] = fen.split(' ');
+    turn = activeColor;
+    
+    let row = 0, col = 0;
+    for (let char of placement) {
+        if (char === '/') { row++; col = 0; }
+        else if (/\d/.test(char)) { col += parseInt(char); }
+        else {
+            board[row][col] = { type: char.toLowerCase(), color: char === char.toUpperCase() ? 'w' : 'b' };
+            col++;
+        }
+    }
+}
+
+function getLegalMoves(color, checkCheck = true) {
+    let moves = [];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = board[r][c];
+            if (piece && piece.color === color) {
+                const pieceMoves = generatePseudoMoves(r, c, piece, board);
+                moves.push(...pieceMoves);
+            }
+        }
+    }
+    if (checkCheck) {
+        return moves.filter(m => {
+            const tempBoard = cloneBoard(board);
+            applyMoveToBoard(tempBoard, m);
+            return !isInCheck(color, tempBoard);
+        });
+    }
+    return moves;
+}
+
+// BUG FIXED: pass 'b' board array directly
+function generatePseudoMoves(r, c, piece, b) {
+    const moves = [];
+    const directions = {
+        'p': [],
+        'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]],
+        'b': [[-1,-1],[-1,1],[1,-1],[1,1]],
+        'r': [[-1,0],[1,0],[0,-1],[0,1]],
+        'q': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]],
+        'k': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]]
+    };
+
+    if (piece.type === 'p') {
+        const dir = piece.color === 'w' ? -1 : 1;
+        const startRow = piece.color === 'w' ? 6 : 1;
+        if (isOnBoard(r+dir, c) && !b[r+dir][c]) {
+            moves.push({from: {r,c}, to: {r: r+dir, c: c}});
+            if (r === startRow && !b[r+dir*2][c]) {
+                moves.push({from: {r,c}, to: {r: r+dir*2, c: c}});
+            }
+        }
+        [[dir, -1], [dir, 1]].forEach(([dr, dc]) => {
+            if (isOnBoard(r+dr, c+dc)) {
+                const target = b[r+dr][c+dc];
+                if (target && target.color !== piece.color) {
+                    moves.push({from: {r,c}, to: {r: r+dr, c: c+dc}});
+                }
+            }
+        });
+    } else {
+        const dirs = directions[piece.type];
+        const isSliding = ['b','r','q'].includes(piece.type);
+
+        for (let [dr, dc] of dirs) {
+            let nr = r + dr, nc = c + dc;
+            while (isOnBoard(nr, nc)) {
+                const target = b[nr][nc];
+                if (!target) {
+                    moves.push({from: {r,c}, to: {r: nr, c: nc}});
+                } else {
+                    if (target.color !== piece.color) moves.push({from: {r,c}, to: {r: nr, c: nc}});
+                    break;
+                }
+                if (!isSliding) break;
+                nr += dr; nc += dc;
+            }
+        }
+    }
+    return moves;
+}
+
+function isOnBoard(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+function cloneBoard(b) { return b.map(row => row.slice()); }
+
+function applyMoveToBoard(b, move) {
+    const p = b[move.from.r][move.from.c];
+    b[move.to.r][move.to.c] = p;
+    b[move.from.r][move.from.c] = null;
+    if (p.type === 'p' && (move.to.r === 0 || move.to.r === 7)) p.type = 'q';
+}
+
+function isInCheck(color, b) {
+    let kPos;
+    for(let r=0; r<8; r++) for(let c=0; c<8; c++) 
+        if(b[r][c] && b[r][c].type === 'k' && b[r][c].color === color) kPos = {r,c};
+    
+    if(!kPos) return true; 
+    return isSquareAttacked(kPos.r, kPos.c, color, b);
+}
+
+function isSquareAttacked(r, c, myColor, b) {
+    const enemy = myColor === 'w' ? 'b' : 'w';
+    const pDir = myColor === 'w' ? -1 : 1; 
+    if (isOnBoard(r+pDir, c-1)) { let p=b[r+pDir][c-1]; if(p && p.color===enemy && p.type==='p') return true; }
+    if (isOnBoard(r+pDir, c+1)) { let p=b[r+pDir][c+1]; if(p && p.color===enemy && p.type==='p') return true; }
+    
+    const nMoves = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+    for(let m of nMoves) {
+        if(isOnBoard(r+m[0], c+m[1])) {
+            let p = b[r+m[0]][c+m[1]];
+            if(p && p.color===enemy && p.type==='n') return true;
+        }
+    }
+    
+    const dirs = [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]];
+    for(let i=0; i<8; i++) {
+        let dr=dirs[i][0], dc=dirs[i][1];
+        let nr=r+dr, nc=c+dc;
+        while(isOnBoard(nr,nc)) {
+            let p = b[nr][nc];
+            if(p) {
+                if(p.color === enemy) {
+                    if(p.type === 'q') return true;
+                    if(p.type === 'r' && i>=4) return true;
+                    if(p.type === 'b' && i<4) return true;
+                    if(p.type === 'k' && (Math.abs(nr-r)<2 && Math.abs(nc-c)<2)) return true;
+                }
+                break;
+            }
+            nr+=dr; nc+=dc;
+        }
+    }
+    return false;
+}
+
+function evaluate(b) {
+    let score = 0;
+    for(let r=0; r<8; r++) {
+        for(let c=0; c<8; c++) {
+            const p = b[r][c];
+            if(p) {
+                if (p.color === 'w') score += PIECE_VALUES[p.type];
+                else score -= PIECE_VALUES[p.type];
+            }
+        }
+    }
+    return score;
+}
+
+function minimax(b, depth, alpha, beta, isMax) {
+    if (depth === 0) return evaluate(b);
+
+    const moves = getLegalMovesAI(b, isMax ? 'w' : 'b');
+    if (moves.length === 0) {
+        if (isInCheck(isMax ? 'w' : 'b', b)) return isMax ? -50000 : 50000; 
+        return 0; 
+    }
+
+    moves.sort(() => Math.random() - 0.5);
+
+    if (isMax) {
+        let maxEval = -Infinity;
+        for (let move of moves) {
+            const newB = cloneBoard(b);
+            applyMoveToBoard(newB, move);
+            const eval = minimax(newB, depth - 1, alpha, beta, false);
+            maxEval = Math.max(maxEval, eval);
+            alpha = Math.max(alpha, eval);
+            if (beta <= alpha) break;
+        }
+        return maxEval;
+    } else {
+        let minEval = Infinity;
+        let bestMove = null;
+        for (let move of moves) {
+            const newB = cloneBoard(b);
+            applyMoveToBoard(newB, move);
+            const eval = minimax(newB, depth - 1, alpha, beta, true);
+            if (eval < minEval) {
+                minEval = eval;
+                if (depth === 3) bestMove = move; 
+            }
+            beta = Math.min(beta, eval);
+            if (beta <= alpha) break;
+        }
+        return depth === 3 ? { eval: minEval, move: bestMove } : minEval;
+    }
+}
+
+function getLegalMovesAI(b, color) {
+    let moves = [];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = b[r][c];
+            if (piece && piece.color === color) {
+                const pieceMoves = generatePseudoMoves(r, c, piece, b); 
+                moves.push(...pieceMoves);
+            }
+        }
+    }
+    return moves.filter(m => {
+        const temp = cloneBoard(b);
+        applyMoveToBoard(temp, m);
+        return !isInCheck(color, temp);
+    });
+}
+
+async function makeAIMove() {
+    aiThinking = true;
+    gameContainer.classList.add('thinking');
+    statusEl.innerText = "AI CALCULATING...";
+    statusEl.style.color = COLORS.red;
+    
+    await new Promise(r => setTimeout(r, 100));
+
+    const result = minimax(board, 3, -Infinity, Infinity, false); 
+    
+    gameContainer.classList.remove('thinking');
+    aiThinking = false;
+    
+    if (result && result.move) {
+        const move = result.move;
+        applyMoveToBoard(board, move);
+        gameHistory.push({ from: move.from, to: move.to, color: 'b', san: moveToString(move) });
+        turn = 'w';
+        drawBoard();
+        updateCaptured();
+        checkGameState();
+    } else {
+        gameOver = true;
+        statusEl.innerText = "GAME OVER";
+        analyzeBtn.disabled = false;
+    }
+}
+
+function moveToString(m) {
+    const cols = 'abcdefgh';
+    return `${cols[m.from.c]}${8-m.from.r} to ${cols[m.to.c]}${8-m.to.r}`;
+}
+
+function updateCaptured() {
+    const initial = { p:8, n:2, b:2, r:2, q:1 };
+    const currentW = { p:0, n:0, b:0, r:0, q:0 };
+    const currentB = { p:0, n:0, b:0, r:0, q:0 };
+    
+    for(let r=0; r<8; r++) {
+        for(let c=0; c<8; c++) {
+            let p = board[r][c];
+            if (p && p.type !== 'k') {
+                if (p.color === 'w') currentW[p.type]++;
+                else currentB[p.type]++;
+            }
+        }
+    }
+    
+    let htmlGreen = ''; // Green pieces captured by Red
+    let htmlRed = '';   // Red pieces captured by Green
+    
+    // If current < initial, the piece was captured
+    for (let type in initial) {
+        let missingW = initial[type] - currentW[type];
+        for(let i=0; i<missingW; i++) htmlGreen += `<span>${PIECES[type]}</span>`;
+        
+        let missingB = initial[type] - currentB[type];
+        for(let i=0; i<missingB; i++) htmlRed += `<span>${PIECES[type]}</span>`;
+    }
+    
+    capGreenEl.innerHTML = htmlGreen;
+    capRedEl.innerHTML = htmlRed;
+}
+
+function drawBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            ctx.fillStyle = (r + c) % 2 === 0 ? COLORS.boardLight : COLORS.boardDark;
+            ctx.fillRect(c * SQUARE_SIZE, r * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+            
+            if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) {
+                ctx.fillStyle = COLORS.highlight;
+                ctx.fillRect(c * SQUARE_SIZE, r * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+            }
+
+            if (selectedSquare) {
+                const isTarget = validMoves.some(m => m.to.r === r && m.to.c === c);
+                if (isTarget) {
+                    ctx.fillStyle = COLORS.validMove;
+                    ctx.beginPath();
+                    ctx.arc(c * SQUARE_SIZE + SQUARE_SIZE/2, r * SQUARE_SIZE + SQUARE_SIZE/2, SQUARE_SIZE/6, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+
+            const piece = board[r][c];
+            if (piece) {
+                // Ensure reliable text rendering
+                ctx.font = `bold ${SQUARE_SIZE * 0.75}px Arial`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                
+                ctx.fillStyle = piece.color === 'w' ? COLORS.green : COLORS.red;
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                
+                const symbol = PIECES[piece.type];
+                ctx.fillText(symbol, c * SQUARE_SIZE + SQUARE_SIZE/2, r * SQUARE_SIZE + SQUARE_SIZE/2 + 2);
+                
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+            }
+        }
+    }
+}
+
+canvas.addEventListener('mousedown', e => {
+    if (gameOver || turn !== 'w' || aiThinking) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const c = Math.floor((e.clientX - rect.left) / SQUARE_SIZE);
+    const r = Math.floor((e.clientY - rect.top) / SQUARE_SIZE);
+    
+    if (selectedSquare) {
+        const move = validMoves.find(m => m.to.r === r && m.to.c === c);
+        if (move) {
+            applyMoveToBoard(board, move);
+            gameHistory.push({ from: move.from, to: move.to, color: 'w', san: moveToString(move) });
+            selectedSquare = null;
+            validMoves = [];
+            turn = 'b';
+            drawBoard();
+            updateCaptured();
+            
+            checkGameState();
+            if (!gameOver) setTimeout(makeAIMove, 100);
+        } else {
+            selectedSquare = null;
+            validMoves = [];
+            drawBoard();
+            if (board[r][c] && board[r][c].color === 'w') {
+                selectPiece(r, c);
+            }
+        }
+    } else {
+        if (board[r][c] && board[r][c].color === 'w') {
+            selectPiece(r, c);
+        }
+    }
+});
+
+function selectPiece(r, c) {
+    selectedSquare = { r, c };
+    validMoves = getLegalMoves('w', true).filter(m => m.from.r === r && m.from.c === c);
+    drawBoard();
+}
+
+function checkGameState() {
+    const moves = getLegalMoves(turn, true);
+    if (moves.length === 0) {
+        gameOver = true;
+        if (isInCheck(turn, board)) {
+            statusEl.innerText = turn === 'w' ? "CHECKMATE. YOU LOST." : "VICTORY ACHIEVED.";
+            statusEl.style.color = turn === 'w' ? COLORS.red : COLORS.green;
+        } else {
+            statusEl.innerText = "STALEMATE.";
+            statusEl.style.color = '#eab308';
+        }
+        analyzeBtn.disabled = false;
+        log(statusEl.innerText, 'system');
+    } else {
+        statusEl.innerText = turn === 'w' ? "YOUR TURN" : "AI THINKING...";
+        statusEl.style.color = turn === 'w' ? COLORS.green : COLORS.red;
+    }
+}
+
+resetBtn.onclick = () => {
+    parseFEN(INITIAL_FEN);
+    gameHistory = [];
+    gameOver = false;
+    terminal.innerHTML = '<div class="log-entry system">> SYSTEM RESET</div>';
+    analyzeBtn.disabled = true;
+    turn = 'w';
+    drawBoard();
+    updateCaptured();
+    statusEl.innerText = "YOUR TURN";
+    statusEl.style.color = COLORS.green;
+};
+
+analyzeBtn.onclick = () => {
+    const historyStr = gameHistory.map((h, i) => `${i+1}. ${h.san}`).join(' ');
+    const prompt = `Analyze this chess game efficiently. History: ${historyStr}. Winner: ${turn==='w'?'AI':'Human'}. Key mistakes?`;
+    callGemini(prompt, 'analysis');
+};
+
+function log(msg, type) {
+    const div = document.createElement('div');
+    div.className = `log-entry ${type}`;
+    div.innerText = `> ${msg}`;
+    terminal.prepend(div);
+}
+
+init();
+</script>
+</body>
+</html>
